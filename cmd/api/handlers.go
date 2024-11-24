@@ -43,7 +43,7 @@ func (app *application) AllMovies(w http.ResponseWriter, r *http.Request) {
 	var movies []models.Movie
 
 	// set yyyy-mm-dd
-	rd, _ := time.Parse("1993-12-25", "1981-06-12")
+	rd, _ := time.Parse("2006-01-02", "1981-06-07")
 
 	//Data Movie 1
 	yellowboy := models.Movie{
