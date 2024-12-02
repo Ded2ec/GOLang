@@ -3,6 +3,7 @@ package main
 import (
 	"backend/internal/models"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -97,4 +98,51 @@ func (app *application) AllMovies(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	_ = app.writeJSON(w, http.StatusOK, movies)
+}
+
+// Funtion Authentication and Create Tokenpairs
+
+func (app *application) authenticate(w http.ResponseWriter, r *http.Request) {
+	// read json payload (อ่านข้อมูล JSON ที่ส่งมา)
+	var requestPayload struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+
+	err := app.readJSON(w, r, &requestPayload)
+	if err != nil {
+		app.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	// validate user against database (ตรวจสอบข้อมูลผู้ใช้จากฐานข้อมูล)
+	user, err := app.DB.GetUserByEmail(requestPayload.Email)
+	if err != nil {
+		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
+		return
+	}
+	// check password against hash (ตรวจสอบรหัสผ่าน)
+	valid, err := user.PasswordMatches(requestPayload.Password)
+	if err != nil || !valid {
+		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
+		return
+	}
+	// create a jwt user (สร้าง jwt user)
+	u := jwtUser{
+		ID:        user.ID,
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+	}
+	// generate tokens (สร้างโทเคน)
+	tokens, err := app.auth.GenerateTokenPair(&u)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	refreshCookie := app.auth.GetRefreshCookie(tokens.RefreshToken)
+	http.SetCookie(w, refreshCookie)
+
+	app.writeJSON(w, http.StatusAccepted, tokens)
+
 }
