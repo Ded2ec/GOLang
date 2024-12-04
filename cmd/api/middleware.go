@@ -2,6 +2,7 @@ package main
 
 import "net/http"
 
+// ฟังก์ชันสำหรับการเปิดใช้งาน CORS
 func (app *application) enableCORS(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
@@ -14,5 +15,17 @@ func (app *application) enableCORS(h http.Handler) http.Handler {
 		} else {
 			h.ServeHTTP(w, r)
 		}
+	})
+}
+
+// ฟังก์ชันสำหรับการตรวจสอบการ Auth
+func (app *application) authRequired(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _, err := app.auth.GetTokenFromHeaderAndVerify(w, r)
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		next.ServeHTTP(w, r)
 	})
 }

@@ -16,4 +16,8 @@ type DatabaseRepo interface {
 
 	// Get User by ID
 	GetUserByID(id int) (*models.User, error)
+	// Get One Movie by ID
+	OneMovie(id int) (*models.Movie, error)
+	// Edit One Movie by ID
+	OneMovieForEdit(id int) (*models.Movie, []*models.Genre, error)
 }
