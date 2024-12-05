@@ -1,0 +1,514 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is a Movies API with GO and PostgreSQL",
+        "title": "Movies API with GO and PostgreSQL",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "API Support",
+            "url": "http://www.swagger.io/support",
+            "email": "support@swagger.io"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/api/v1/": {
+            "get": {
+                "description": "แสดงสถานะและข้อมูลเกี่ยวกับ API",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Home"
+                ],
+                "summary": "ตรวจสอบสถานะการทำงานของ API",
+                "responses": {
+                    "200": {
+                        "description": "{\"status\":\"active\",\"message\":\"Go Movies up and running\",\"version\":\"1.0.0\"}",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/movies": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "ดึงข้อมูลหนังทั้งหมดจากแคตตาล็อก",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Movies"
+                ],
+                "summary": "แสดงรายชื่อหนังในแคตตาล็อก",
+                "responses": {
+                    "200": {
+                        "description": "List of movies in catalog\" example([{\"id\":1,\"title\":\"Catalog Movie Title\",\"release_date\":\"2024-08-28\",\"mpaa_rating\":\"PG\",\"run_time\":90,\"description\":\"Description of the catalog movie\"}])",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "additionalProperties": true
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error\" example({\"error\":\"Internal Server Error\"})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "เพิ่มหนังใหม่ไปยังฐานข้อมูล",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Movies"
+                ],
+                "summary": "เพิ่มหนังใหม่",
+                "parameters": [
+                    {
+                        "description": "Movie data",
+                        "name": "movie",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Movie created\" example({\"message\":\"movie updated\"})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request\" example({\"error\":\"Invalid data\"})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error\" example({\"error\":\"Internal Server Error\"})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/movies/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "ดึงข้อมูลหนังและประเภทหนังสำหรับการแก้ไขตาม ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Movies"
+                ],
+                "summary": "ดึงข้อมูลหนังและประเภทหนังสำหรับการแก้ไข",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Movie ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Movie and genres details\" example({\"movie\":{\"id\":1,\"title\":\"Movie Title\"},\"genres\":[{\"id\":1,\"name\":\"Genre Name\"}]})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request\" example({\"error\":\"Invalid ID\"})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error\" example({\"error\":\"Internal Server Error\"})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "แก้ไขข้อมูลหนังตาม ID ที่กำหนด",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Movies"
+                ],
+                "summary": "แก้ไขข้อมูลหนัง",
+                "parameters": [
+                    {
+                        "description": "Updated movie data",
+                        "name": "movie",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Movie updated\" example({\"message\":\"movie updated\"})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request\" example({\"error\":\"Invalid data\"})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error\" example({\"error\":\"Internal Server Error\"})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "ลบข้อมูลหนังตาม ID ที่กำหนด",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Movies"
+                ],
+                "summary": "ลบหนังตาม ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Movie ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Movie deleted\" example({\"message\":\"movie deleted\"})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request\" example({\"error\":\"Invalid ID\"})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error\" example({\"error\":\"Internal Server Error\"})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/authenticate": {
+            "post": {
+                "description": "รับข้อมูลอีเมลและรหัสผ่านของผู้ใช้และตรวจสอบความถูกต้อง หลังจากนั้นสร้าง JWT TokenPairs",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Authentication และสร้าง TokenPairs",
+                "parameters": [
+                    {
+                        "description": "User credentials",
+                        "name": "requestPayload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Token pairs\" example({\"access_token\": \"string\", \"refresh_token\": \"string\"})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request\" example({\"error\": \"Bad Request\"})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error\" example({\"error\": \"Internal Server Error\"})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/genres": {
+            "get": {
+                "description": "ดึงข้อมูลประเภทหนังทั้งหมด",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Genres"
+                ],
+                "summary": "แสดงประเภทหนังทั้งหมด",
+                "responses": {
+                    "200": {
+                        "description": "List of all genres\" example([{\"id\":1,\"name\":\"Action\"},{\"id\":2,\"name\":\"Drama\"}])",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "additionalProperties": true
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error\" example({\"error\":\"Internal Server Error\"})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/logout": {
+            "get": {
+                "description": "ลบโทเคนรีเฟรชของผู้ใช้ออกจากระบบ",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "ออกจากระบบ",
+                "responses": {
+                    "202": {
+                        "description": "Accepted\" example({\"message\": \"Accepted\"})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error\" example({\"error\": \"Internal Server Error\"})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/movies": {
+            "get": {
+                "description": "ดึงข้อมูลหนังทั้งหมดจาก database",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Movies"
+                ],
+                "summary": "แสดงรายชื่อหนังทั้งหมด",
+                "responses": {
+                    "200": {
+                        "description": "List of all movies\" example([{\"id\":1,\"title\":\"Movie Title\",\"release_date\":\"2024-08-28\",\"mpaa_rating\":\"PG\",\"run_time\":120,\"description\":\"Description of the movie\"}])",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "additionalProperties": true
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error\" example({\"error\":\"Internal Server Error\"})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/movies/{id}": {
+            "get": {
+                "description": "ดึงข้อมูลหนังตาม ID ที่กำหนด",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Movies"
+                ],
+                "summary": "แสดงรายละเอียดของหนังตาม ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Movie ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Movie details\" example({\"id\":1,\"title\":\"Movie Title\",\"release_date\":\"2024-08-28\",\"mpaa_rating\":\"PG\",\"run_time\":120,\"description\":\"Description of the movie\"})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request\" example({\"error\":\"Invalid ID\"})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error\" example({\"error\":\"Internal Server Error\"})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/refresh": {
+            "get": {
+                "description": "ตรวจสอบโทเคนที่หมดอายุและสร้างโทเคนใหม่สำหรับผู้ใช้",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "รีเฟรชโทเคน JWT",
+                "responses": {
+                    "200": {
+                        "description": "Token pairs\" example({\"access_token\": \"string\", \"refresh_token\": \"string\"})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized\" example({\"error\": \"Unauthorized\"})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error\" example({\"error\": \"Internal Server Error\"})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

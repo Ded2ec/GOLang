@@ -1,0 +1,353 @@
+basePath: /
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a Movies API with GO and PostgreSQL
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Movies API with GO and PostgreSQL
+  version: "1.0"
+paths:
+  /api/v1/:
+    get:
+      description: แสดงสถานะและข้อมูลเกี่ยวกับ API
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":"active","message":"Go Movies up and running","version":"1.0.0"}'
+          schema:
+            additionalProperties: true
+            type: object
+      summary: ตรวจสอบสถานะการทำงานของ API
+      tags:
+      - Home
+  /api/v1/admin/movies:
+    get:
+      description: ดึงข้อมูลหนังทั้งหมดจากแคตตาล็อก
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of movies in catalog" example([{"id":1,"title":"Catalog
+            Movie Title","release_date":"2024-08-28","mpaa_rating":"PG","run_time":90,"description":"Description
+            of the catalog movie"}])
+          schema:
+            items:
+              additionalProperties: true
+              type: object
+            type: array
+        "500":
+          description: Internal Server Error" example({"error":"Internal Server Error"})
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: แสดงรายชื่อหนังในแคตตาล็อก
+      tags:
+      - Movies
+    post:
+      consumes:
+      - application/json
+      description: เพิ่มหนังใหม่ไปยังฐานข้อมูล
+      parameters:
+      - description: Movie data
+        in: body
+        name: movie
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Movie created" example({"message":"movie updated"})
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request" example({"error":"Invalid data"})
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error" example({"error":"Internal Server Error"})
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: เพิ่มหนังใหม่
+      tags:
+      - Movies
+  /api/v1/admin/movies/{id}:
+    delete:
+      description: ลบข้อมูลหนังตาม ID ที่กำหนด
+      parameters:
+      - description: Movie ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Movie deleted" example({"message":"movie deleted"})
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request" example({"error":"Invalid ID"})
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error" example({"error":"Internal Server Error"})
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: ลบหนังตาม ID
+      tags:
+      - Movies
+    get:
+      description: ดึงข้อมูลหนังและประเภทหนังสำหรับการแก้ไขตาม ID
+      parameters:
+      - description: Movie ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Movie and genres details" example({"movie":{"id":1,"title":"Movie
+            Title"},"genres":[{"id":1,"name":"Genre Name"}]})
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request" example({"error":"Invalid ID"})
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error" example({"error":"Internal Server Error"})
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: ดึงข้อมูลหนังและประเภทหนังสำหรับการแก้ไข
+      tags:
+      - Movies
+    put:
+      consumes:
+      - application/json
+      description: แก้ไขข้อมูลหนังตาม ID ที่กำหนด
+      parameters:
+      - description: Updated movie data
+        in: body
+        name: movie
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Movie updated" example({"message":"movie updated"})
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request" example({"error":"Invalid data"})
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error" example({"error":"Internal Server Error"})
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: แก้ไขข้อมูลหนัง
+      tags:
+      - Movies
+  /api/v1/authenticate:
+    post:
+      consumes:
+      - application/json
+      description: รับข้อมูลอีเมลและรหัสผ่านของผู้ใช้และตรวจสอบความถูกต้อง หลังจากนั้นสร้าง
+        JWT TokenPairs
+      parameters:
+      - description: User credentials
+        in: body
+        name: requestPayload
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: 'Token pairs" example({"access_token": "string", "refresh_token":
+            "string"})'
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 'Bad Request" example({"error": "Bad Request"})'
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 'Internal Server Error" example({"error": "Internal Server
+            Error"})'
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Authentication และสร้าง TokenPairs
+      tags:
+      - Authentication
+  /api/v1/genres:
+    get:
+      description: ดึงข้อมูลประเภทหนังทั้งหมด
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of all genres" example([{"id":1,"name":"Action"},{"id":2,"name":"Drama"}])
+          schema:
+            items:
+              additionalProperties: true
+              type: object
+            type: array
+        "500":
+          description: Internal Server Error" example({"error":"Internal Server Error"})
+          schema:
+            additionalProperties: true
+            type: object
+      summary: แสดงประเภทหนังทั้งหมด
+      tags:
+      - Genres
+  /api/v1/logout:
+    get:
+      description: ลบโทเคนรีเฟรชของผู้ใช้ออกจากระบบ
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: 'Accepted" example({"message": "Accepted"})'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'Internal Server Error" example({"error": "Internal Server
+            Error"})'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: ออกจากระบบ
+      tags:
+      - Authentication
+  /api/v1/movies:
+    get:
+      description: ดึงข้อมูลหนังทั้งหมดจาก database
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of all movies" example([{"id":1,"title":"Movie Title","release_date":"2024-08-28","mpaa_rating":"PG","run_time":120,"description":"Description
+            of the movie"}])
+          schema:
+            items:
+              additionalProperties: true
+              type: object
+            type: array
+        "500":
+          description: Internal Server Error" example({"error":"Internal Server Error"})
+          schema:
+            additionalProperties: true
+            type: object
+      summary: แสดงรายชื่อหนังทั้งหมด
+      tags:
+      - Movies
+  /api/v1/movies/{id}:
+    get:
+      description: ดึงข้อมูลหนังตาม ID ที่กำหนด
+      parameters:
+      - description: Movie ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Movie details" example({"id":1,"title":"Movie Title","release_date":"2024-08-28","mpaa_rating":"PG","run_time":120,"description":"Description
+            of the movie"})
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request" example({"error":"Invalid ID"})
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error" example({"error":"Internal Server Error"})
+          schema:
+            additionalProperties: true
+            type: object
+      summary: แสดงรายละเอียดของหนังตาม ID
+      tags:
+      - Movies
+  /api/v1/refresh:
+    get:
+      description: ตรวจสอบโทเคนที่หมดอายุและสร้างโทเคนใหม่สำหรับผู้ใช้
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Token pairs" example({"access_token": "string", "refresh_token":
+            "string"})'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: 'Unauthorized" example({"error": "Unauthorized"})'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'Internal Server Error" example({"error": "Internal Server
+            Error"})'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: รีเฟรชโทเคน JWT
+      tags:
+      - Authentication
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
