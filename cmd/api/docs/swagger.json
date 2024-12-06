@@ -15,7 +15,8 @@
         },
         "version": "1.0"
     },
-    "host": "localhost:7070",
+    "host": "https://golang-4gkc.onrender.com",
+  
     "basePath": "/",
     "paths": {
         "/api/v1/": {
