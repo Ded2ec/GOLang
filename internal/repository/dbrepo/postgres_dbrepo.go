@@ -13,9 +13,8 @@ type PostgresDBRepo struct {
 
 const dbTimeout = time.Second * 5
 
-// Conconnection
-
-func (m *PostgresDBRepo) Conconnection() *sql.DB {
+// Connection
+func (m *PostgresDBRepo) Connection() *sql.DB {
 	return m.DB
 }
 

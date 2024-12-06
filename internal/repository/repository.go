@@ -6,7 +6,7 @@ import (
 )
 
 type DatabaseRepo interface {
-	Conconnection() *sql.DB
+	Connection() *sql.DB
 
 	// Get User by Email
 	GetUserByEmail(email string) (*models.User, error)

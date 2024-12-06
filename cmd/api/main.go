@@ -12,11 +12,10 @@ import (
 	// "github.com/joho/godotenv"
 )
 
-// Set Port
+// สร้างตัวแปรกำหนด port ที่จะใช้
 const port = 8080
 
-// Appilication Struct&config Database connection
-
+// สร้าง application struct สำหรับเก็บ config และ database connection
 type application struct {
 	DSN          string
 	Domain       string
@@ -47,24 +46,16 @@ type application struct {
 // @securityDefinitions.apikey BearerAuth
 // @in header
 // @name Authorization
-
-// @securityDefinitions.apikey BearerAuth
-// @in header
-// @name Authorization
 func main() {
 
-	// Set appilication Config
+	// Set application config
 	var app application
 	app.Domain = "example.com"
 
-	// Read from command line agements
-	//flag.StringVar(&app.DSN, "dsn", "host=localhost port=5432 dbname=gosampledb user=postgres password=15229 sslmode=disable timezone=UTC connect_timeout=5", "Postgres connect db")
-
-	// Load .env
-
+	// โหลดค่าจากไฟล์ .env
 	// err := godotenv.Load()
 	// if err != nil {
-	// 	log.Fatal(err)
+	// 	log.Fatal("Error loading .env file")
 	// }
 
 	// สร้าง DSN สำหรับเชื่อมต่อฐานข้อมูล
@@ -78,8 +69,12 @@ func main() {
 		os.Getenv("DB_TIMEZONE"),
 		os.Getenv("DB_CONNECT_TIMEOUT"),
 	)
+
 	// อ่านค่าจาก environment variables
 	app.DSN = dsn
+
+	// Read from command line arguments
+	// flag.StringVar(&app.DSN, "dsn", "host=localhost port=5432 dbname=gosampledb user=postgres password=123456 sslmode=disable timezone=UTC connect_timeout=5", "Postgres connection string")
 
 	// ตั้งค่าตัวแปร JWT จาก environment variables
 	app.JWTSecret = os.Getenv("JWT_SECRET")
@@ -88,8 +83,9 @@ func main() {
 	app.CookieDomain = os.Getenv("COOKIE_DOMAIN")
 	app.Domain = os.Getenv("DOMAIN")
 	app.APIKey = os.Getenv("API_KEY")
+
 	// Parse the command line arguments for JWT
-	// flag.StringVar(&app.JWTSecret, "jwt-secret", "newty_secret", "signing secret")
+	// flag.StringVar(&app.JWTSecret, "jwt-secret", "verysecret", "signing secret")
 	// flag.StringVar(&app.JWTIssuer, "jwt-issuer", "example.com", "signing issuer")
 	// flag.StringVar(&app.JWTAudience, "jwt-audience", "example.com", "signing audience")
 	// flag.StringVar(&app.CookieDomain, "cookie-domain", "localhost", "cookie domain")
@@ -98,14 +94,16 @@ func main() {
 
 	flag.Parse()
 
-	// Connect to Database
+	// Connect to database
 	conn, err := app.connectToDB()
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	app.DB = &dbrepo.PostgresDBRepo{DB: conn}
 
-	defer app.DB.Conconnection().Close()
+	// Close the database connection
+	defer app.DB.Connection().Close()
 
 	app.auth = Auth{
 		Issuer:        app.JWTIssuer,
@@ -120,9 +118,10 @@ func main() {
 
 	// http.HandleFunc("/", Hello)
 	// http.HandleFunc("/about", About)
-	//Start the server
-	fmt.Println("Starting on", app.Domain)
-	log.Printf("Starting on Port %d", port)
+
+	// Start the server
+	fmt.Println("Starting server on ", app.Domain)
+	log.Printf("Starting server on port %d", port)
 	err = http.ListenAndServe(fmt.Sprintf(":%d", port), app.routes())
 	if err != nil {
 		log.Fatal(err)

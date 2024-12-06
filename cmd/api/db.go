@@ -1,5 +1,7 @@
+// pkgm
 package main
 
+// ims
 import (
 	"database/sql"
 	"log"
@@ -15,10 +17,12 @@ func openDB(dsn string) (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	err = db.Ping()
 	if err != nil {
 		return nil, err
 	}
+
 	return db, nil
 }
 
@@ -27,6 +31,7 @@ func (app *application) connectToDB() (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Println("Database Conconnection successful")
+
+	log.Println("Database connection successful")
 	return connection, nil
 }
