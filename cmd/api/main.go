@@ -9,8 +9,7 @@ import (
 	"net/http"
 	"os"
 	"time"
-
-	"github.com/joho/godotenv"
+	// "github.com/joho/godotenv"
 )
 
 // Set Port
@@ -63,10 +62,11 @@ func main() {
 
 	// Load .env
 
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal(err)
-	}
+	// err := godotenv.Load()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
 	// สร้าง DSN สำหรับเชื่อมต่อฐานข้อมูล
 	dsn := fmt.Sprintf("host=%s port=%s dbname=%s user=%s password=%s sslmode=%s timezone=%s connect_timeout=%s",
 		os.Getenv("DB_HOST"),
