@@ -1,0 +1,53 @@
+# กำหนด NetWork ให้กับ Container
+networks:
+  goapi_network:
+    name: goapi_network
+    driver: bridge
+
+services:
+  # Postgres Database
+  pgdb:
+    image: postgres:15.8
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 15229
+      POSTGRES_DB: gosampledb
+    volumes:
+      - ./postgresdb:/var/lib/postgresql/data
+      - ./initdb:/docker-entrypoint-initdb.d
+    ports:
+      - "6432:5432"
+    restart: always
+    networks:
+      - goapi_network
+  # Go API
+  goapi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: go_sample_api
+    ports:
+      - "7070:8080"
+    # environment:
+    #   - DB_HOST=pgdb
+    #   - DB_PORT=5432
+    #   - DB_NAME=gosampledb
+    #   - DB_USER=postgres
+    #   - DB_PASSWORD=15229
+    #   - DB_SSLMODE=disable
+    #   - DB_TIMEZONE=UTC
+    #   - DB_CONNECT_TIMEOUT=5
+    #   - JWT_SECRET=newty_secret
+    #   - JWT_ISSUER=example.com
+    #   - JWT_AUDIENCE=example.com
+    #   - COOKIE_DOMAIN=localhost
+    #   - DOMAIN=example.com
+    #   - API_KEY=b41447e6319d1cd467306735632ba733
+    depends_on:
+      - pgdb
+    restart: always
+    networks:
+      - goapi_network
+volumes:
+  postgresdb:
