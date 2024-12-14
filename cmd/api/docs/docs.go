@@ -281,55 +281,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/authenticate": {
-            "post": {
-                "description": "รับข้อมูลอีเมลและรหัสผ่านของผู้ใช้และตรวจสอบความถูกต้อง หลังจากนั้นสร้าง JWT TokenPairs",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Authentication"
-                ],
-                "summary": "Authentication และสร้าง TokenPairs",
-                "parameters": [
-                    {
-                        "description": "User credentials",
-                        "name": "requestPayload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                ],
-                "responses": {
-                    "202": {
-                        "description": "Token pairs\" example({\"access_token\": \"string\", \"refresh_token\": \"string\"})",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request\" example({\"error\": \"Bad Request\"})",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error\" example({\"error\": \"Internal Server Error\"})",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/genres": {
             "get": {
                 "description": "ดึงข้อมูลประเภทหนังทั้งหมด",
@@ -353,6 +304,55 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error\" example({\"error\":\"Internal Server Error\"})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/login": {
+            "post": {
+                "description": "รับข้อมูลอีเมลและรหัสผ่านของผู้ใช้และตรวจสอบความถูกต้อง หลังจากนั้นสร้าง JWT TokenPairs",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Authentication และสร้าง TokenPairs",
+                "parameters": [
+                    {
+                        "description": "User credentials",
+                        "name": "requestPayload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.UserLoginPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Token pairs\" example({\"access_token\": \"string\", \"refresh_token\": \"string\"})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request\" example({\"error\": \"Bad Request\"})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error\" example({\"error\": \"Internal Server Error\"})",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -508,6 +508,97 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/v1/register": {
+            "post": {
+                "description": "รับข้อมูลผู้ใช้ใหม่และบันทึกลงในระบบ",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "เพิ่มผู้ใช้ใหม่",
+                "parameters": [
+                    {
+                        "description": "User registration data",
+                        "name": "requestPayload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.UserRegisterPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "message\" example({\"message\": \"User created\"})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request\" example({\"error\": \"Bad Request\"})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error\" example({\"error\": \"Internal Server Error\"})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "main.UserLoginPayload": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "description": "Required: true\nExample: \"",
+                    "type": "string"
+                },
+                "password": {
+                    "description": "Required: true\nExample: \"password123\"",
+                    "type": "string"
+                }
+            }
+        },
+        "main.UserRegisterPayload": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "description": "Required: true\nExample: \"john@example.com\"",
+                    "type": "string"
+                },
+                "first_name": {
+                    "description": "Required: true\nExample: \"John\"",
+                    "type": "string"
+                },
+                "last_name": {
+                    "description": "Required: true\nExample: \"Doe\"",
+                    "type": "string"
+                },
+                "password": {
+                    "description": "Required: true\nExample: \"password123\"",
+                    "type": "string"
+                }
+            }
         }
     },
     "securityDefinitions": {
@@ -522,9 +613,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	//Host:             "localhost:7070",// render https://golang-4gkc.onrender.com
-	Host:             "https://golang-4gkc.onrender.com",// render 
-
+	Host:             "localhost:8080",
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "Movies API with GO and PostgreSQL",

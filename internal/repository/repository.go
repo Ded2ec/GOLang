@@ -12,6 +12,8 @@ type DatabaseRepo interface {
 	GetUserByEmail(email string) (*models.User, error)
 	// Get User by ID
 	GetUserByID(id int) (*models.User, error)
+	// Insert User
+	InsertUser(user models.User) (int, error) // เพิ่มฟังก์ชันใหม่สำหรับการลงทะเบียนผู้ใช้
 	// Get all movies
 	AllMovies() ([]*models.Movie, error)
 	// Get One Movie by ID

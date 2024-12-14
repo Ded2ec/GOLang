@@ -31,7 +31,8 @@ func (app *application) routes() http.Handler {
 		r.Get("/movies", app.AllMovies)
 
 		//Authenticate Route
-		r.Post("/authenticate", app.authenticate)
+		r.Post("/login", app.login)
+		r.Post("/register", app.register)
 		r.Get("/refresh", app.refreshToken)
 		r.Get("/logout", app.logout)
 

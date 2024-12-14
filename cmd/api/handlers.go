@@ -14,25 +14,51 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/golang-jwt/jwt/v4"
+	"golang.org/x/crypto/bcrypt"
 )
 
-// authenticate ทำการ Authentication และสร้าง TokenPairs
+// UserRegisterPayload is the request payload for user login
+// swagger:parameters login
+type UserLoginPayload struct {
+	// Required: true
+	// Example: "
+	Email string `json:"email"`
+	// Required: true
+	// Example: "password123"
+	Password string `json:"password"`
+}
+
+// UserRegisterPayload is the request payload for user registration
+// swagger:parameters register
+type UserRegisterPayload struct {
+	// Required: true
+	// Example: "John"
+	FirstName string `json:"first_name"`
+	// Required: true
+	// Example: "Doe"
+	LastName string `json:"last_name"`
+	// Required: true
+	// Example: "john@example.com"
+	Email string `json:"email"`
+	// Required: true
+	// Example: "password123"
+	Password string `json:"password"`
+}
+
+// login ทำการ login และสร้าง TokenPairs
 // @Summary Authentication และสร้าง TokenPairs
 // @Description รับข้อมูลอีเมลและรหัสผ่านของผู้ใช้และตรวจสอบความถูกต้อง หลังจากนั้นสร้าง JWT TokenPairs
 // @Tags Authentication
 // @Accept json
 // @Produce json
-// @Param requestPayload body object true "User credentials" example({"email": "string", "password": "string"})
+// @Param requestPayload body UserLoginPayload true "User credentials" example({"email": "string", "password": "string"})
 // @Success 202 {object} map[string]interface{} "Token pairs" example({"access_token": "string", "refresh_token": "string"})
 // @Failure 400 {object} map[string]interface{} "Bad Request" example({"error": "Bad Request"})
 // @Failure 500 {object} map[string]interface{} "Internal Server Error" example({"error": "Internal Server Error"})
-// @Router /api/v1/authenticate [post]
-func (app *application) authenticate(w http.ResponseWriter, r *http.Request) {
+// @Router /api/v1/login [post]
+func (app *application) login(w http.ResponseWriter, r *http.Request) {
 	// read json payload (อ่านข้อมูล JSON ที่ส่งมา)
-	var requestPayload struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-	}
+	var requestPayload UserLoginPayload
 
 	err := app.readJSON(w, r, &requestPayload)
 	if err != nil {
@@ -68,10 +94,97 @@ func (app *application) authenticate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// set refresh token cookie (ตั้งค่า cookie สำหรับ refresh token)
 	refreshCookie := app.auth.GetRefreshCookie(tokens.RefreshToken)
 	http.SetCookie(w, refreshCookie)
 
-	app.writeJSON(w, http.StatusAccepted, tokens)
+	// create the response payload (สร้าง payload สำหรับ response)
+	responsePayload := struct {
+		AccessToken  string `json:"access_token"`
+		RefreshToken string `json:"refresh_token"`
+		User         struct {
+			ID        int    `json:"id"`
+			FirstName string `json:"first_name"`
+			LastName  string `json:"last_name"`
+			Email     string `json:"email"`
+		} `json:"user"`
+	}{
+		AccessToken:  tokens.Token, // แก้ไขให้ตรงกับฟิลด์ Token ของคุณ
+		RefreshToken: tokens.RefreshToken,
+		User: struct {
+			ID        int    `json:"id"`
+			FirstName string `json:"first_name"`
+			LastName  string `json:"last_name"`
+			Email     string `json:"email"`
+		}{
+			ID:        user.ID,
+			FirstName: user.FirstName,
+			LastName:  user.LastName,
+			Email:     user.Email,
+		},
+	}
+
+	// write the response as JSON (เขียน response เป็น JSON)
+	app.writeJSON(w, http.StatusAccepted, responsePayload)
+}
+
+// register เพิ่มผู้ใช้ใหม่ในระบบ
+// @Summary เพิ่มผู้ใช้ใหม่
+// @Description รับข้อมูลผู้ใช้ใหม่และบันทึกลงในระบบ
+// @Tags Authentication
+// @Accept json
+// @Produce json
+// @Param requestPayload body UserRegisterPayload true "User registration data" example({"first_name": "John", "last_name": "Doe", "email": "john@example.com", "password": "password123"})
+// @Success 201 {object} map[string]string "message" example({"message": "User created"})
+// @Failure 400 {object} map[string]string "Bad Request" example({"error": "Bad Request"})
+// @Failure 500 {object} map[string]string "Internal Server Error" example({"error": "Internal Server Error"})
+// @Router /api/v1/register [post]
+func (app *application) register(w http.ResponseWriter, r *http.Request) {
+	var requestPayload UserRegisterPayload
+
+	err := app.readJSON(w, r, &requestPayload)
+	if err != nil {
+		app.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	// ตรวจสอบว่าอีเมลนี้มีอยู่แล้วในระบบหรือไม่
+	existingUser, _ := app.DB.GetUserByEmail(requestPayload.Email)
+	if existingUser != nil {
+		app.errorJSON(w, errors.New("email already exists"), http.StatusBadRequest)
+		return
+	}
+
+	// Hash password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(requestPayload.Password), bcrypt.DefaultCost)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	// Create new user
+	user := models.User{
+		FirstName: requestPayload.FirstName,
+		LastName:  requestPayload.LastName,
+		Email:     requestPayload.Email,
+		Password:  string(hashedPassword),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	// Insert user to database
+	_, err = app.DB.InsertUser(user)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	resp := JSONResponse{
+		Error:   false,
+		Message: "User created",
+	}
+
+	app.writeJSON(w, http.StatusCreated, resp)
 }
 
 // refreshToken รีเฟรชโทเคน JWT

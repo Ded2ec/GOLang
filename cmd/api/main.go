@@ -9,7 +9,8 @@ import (
 	"net/http"
 	"os"
 	"time"
-	// "github.com/joho/godotenv"
+
+	"github.com/joho/godotenv"
 )
 
 // สร้างตัวแปรกำหนด port ที่จะใช้
@@ -53,10 +54,10 @@ func main() {
 	app.Domain = "example.com"
 
 	// โหลดค่าจากไฟล์ .env
-	// err := godotenv.Load()
-	// if err != nil {
-	// 	log.Fatal("Error loading .env file")
-	// }
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
 	// สร้าง DSN สำหรับเชื่อมต่อฐานข้อมูล
 	dsn := fmt.Sprintf("host=%s port=%s dbname=%s user=%s password=%s sslmode=%s timezone=%s connect_timeout=%s",
@@ -109,7 +110,7 @@ func main() {
 		Issuer:        app.JWTIssuer,
 		Audience:      app.JWTAudience,
 		Secret:        app.JWTSecret,
-		TokenExpiry:   time.Minute * 15,
+		TokenExpiry:   time.Minute * 60,
 		RefreshExpiry: time.Hour * 24,
 		CookiePath:    "/",
 		CookieName:    "__Host-refresh_token",

@@ -76,6 +76,32 @@ func (m *PostgresDBRepo) GetUserByID(id int) (*models.User, error) {
 	return &user, nil
 }
 
+// InsertUser เพิ่มผู้ใช้ใหม่ลงในฐานข้อมูล
+func (m *PostgresDBRepo) InsertUser(user models.User) (int, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+
+	stmt := `insert into users (first_name, last_name, email, password, created_at, updated_at)
+            values ($1, $2, $3, $4, $5, $6) returning id`
+
+	var newID int
+
+	err := m.DB.QueryRowContext(ctx, stmt,
+		user.FirstName,
+		user.LastName,
+		user.Email,
+		user.Password,
+		user.CreatedAt,
+		user.UpdatedAt,
+	).Scan(&newID)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return newID, nil
+}
+
 // สร้างฟังก์ชันอ่านรายการหนังทั้งหมด
 func (m *PostgresDBRepo) AllMovies() ([]*models.Movie, error) {
 
